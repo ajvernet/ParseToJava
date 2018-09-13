@@ -4,12 +4,15 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.Scanner;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JRadioButton;
 
 import Output.Output;
 import main.Tokens.Gui;
 import main.Tokens.Layout;
 import main.Tokens.LayoutType;
+import main.Tokens.RadioButton;
 import main.Tokens.Statement;
 import main.Tokens.Widget;
 
@@ -106,7 +109,7 @@ public class GUIParser {
 			if(currentToken.equals(":")) {
 				getNextToken();
 				if(isWidget(currentToken)) {
-					setWidget();
+					addWidget();
 						}
 					}
 		}
@@ -136,7 +139,7 @@ public class GUIParser {
 								if(currentToken.equals(":")) {
 									getNextToken();
 									if(isWidget(currentToken)) {
-										setWidget();
+										addWidget();
 											}
 										}
 									}
@@ -149,18 +152,22 @@ public class GUIParser {
 			}
 	
 	
-	private void setWidget() {
+	private void addWidget() {
 		switch(currentToken) {
 			
 		case Widget.BUTTON: 
-			System.out.println("detected button");
 			getNextToken();
-			setButton();
+			addButton();
+			
+			break;
+		
+		case Widget.GROUP:
+			addRadioButtonGroup();
 		}
+		
 	}
 	
-	private void setButton() {
-		System.out.println("in set button");
+	private void addButton() {
 		output.add(new JButton(currentToken));
 		
 		getNextToken();
@@ -168,18 +175,46 @@ public class GUIParser {
 
 				getNextToken();
 				if(isWidget(currentToken)) {
-					setWidget();
+					addWidget();
 				}
 			}
 
 	}
 	
-//	private void checkForCorrectToken() {
-//
-//		System.out.println("Insufficient Tokens for Processing");
-//		System.exit(0);
-//	}
+	private void addRadioButtonGroup() {
+		ButtonGroup group = new ButtonGroup();
+		getNextToken();
+		if(currentToken.equals(RadioButton.RADIO)) {
+			getNextToken();
+			addRadioButton(group);
+			
+			getNextToken();
+			if(currentToken.equals(Statement.END)) {
+				
+				getNextToken();
+				if(currentToken.equals(";")) {
+
+				}
+			}
+		}
+	}
 	
+	private void addRadioButton(ButtonGroup group) {
+		JRadioButton button = new JRadioButton(currentToken);
+		group.add(button);
+		
+		getNextToken();
+		if(currentToken.equals(";")){
+			output.add(button);
+			
+			getNextToken();
+			if(currentToken.equals(RadioButton.RADIO)) {
+				getNextToken();
+				addRadioButton(group);
+			}
+		}
+	}
+		
 	private boolean isWidget(String token) {
 		return token.equals(Widget.BUTTON) || token.equals(Widget.GROUP) || 
 			token.equals(Widget.LABEL) || token.equals(Widget.PANEL);
