@@ -1,6 +1,6 @@
 package main.Tokens;
 
 public class LayoutType {
-	private static final String FLOW = "Flow";
-	private static final String GRID = "Grid";
+	public static final String FLOW = "Flow";
+	public static final String GRID = "Grid";
 }
