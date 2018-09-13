@@ -179,20 +179,26 @@ public class GUIParser {
 	}
 	
 	private void addButton() {
-		if(isString(currentToken)) {
-		String buttonText = extractString(currentToken);
-		output.add(new JButton(buttonText));
-	
-		getNextToken();
-		if(currentToken.equals(";")) {
-
+		if(currentToken.equals(Statement.QUOTE)) {
+			
+			getNextToken();
+			if(Patterns.isAlphaNumeric(currentToken)) {
+			output.add(new JButton(currentToken));
+				
 				getNextToken();
-				if(isWidget(currentToken)) {
-					addWidget();
-				}
+				if(currentToken.equals(Statement.QUOTE)) {
+					
+					getNextToken();
+					if(currentToken.equals(Statement.SEMICOLON)) {
+			
+							getNextToken();
+							if(isWidget(currentToken)) {
+								addWidget();
+							}
+						}
+					}
 			}
 		}
-
 	}
 	
 	private void addRadioButtonGroup() {
@@ -215,7 +221,7 @@ public class GUIParser {
 	
 	private void addRadioButton(ButtonGroup group) {
 		if(isString(currentToken)) {
-			String buttonText = extractString(currentToken);
+			String buttonText = currentToken;
 		JRadioButton button = new JRadioButton(buttonText);
 		group.add(button);
 		
@@ -239,10 +245,6 @@ public class GUIParser {
 	
 	private boolean isString(String token) {
 		return token.startsWith("\"") & token.endsWith("\"");
-	}
-	
-	private String extractString(String token) {
-		return token.substring(1, token.length() - 1);
 	}
 	
 	private void getNextToken() {

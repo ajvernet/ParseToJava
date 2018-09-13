@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 public class Patterns {
 	public static final Pattern numPattern = Pattern.compile("\\d+");
 	public static final Pattern alphaPattern = Pattern.compile("[a-zA-Z]+");
+	public static final Pattern alphaNumeric = Pattern.compile("\\w+");
 	
 	public static boolean isNumeric(String token) {
 		Matcher numMatcher = numPattern.matcher(token);
@@ -18,6 +19,7 @@ public class Patterns {
 	}
 	
 	public static boolean isAlphaNumeric(String token) {
-		return isNumeric(token) || isAlphabetic(token);
+		Matcher alphaNumericMatcher = alphaNumeric.matcher(token);
+		return alphaNumericMatcher.matches();
 	}
 }
