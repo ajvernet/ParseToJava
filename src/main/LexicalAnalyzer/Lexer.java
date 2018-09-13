@@ -1,7 +1,6 @@
 package main.LexicalAnalyzer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +45,15 @@ public class Lexer {
 		while(scanner.hasNext()) {
 			getNextToken();
 			
-			Pattern.compile("").splitAsStream(currentToken)
+			fileWriter.write(" ");
+//			
+//			if(validTokens.contains(currentToken)) {
+//				fileWriter.write(" " + currentToken + " ");
+//			}
+			
+//			else {
+				Pattern.compile("").splitAsStream(currentToken)
+			
 				.forEach(
 					character ->
 					{
@@ -76,11 +83,22 @@ public class Lexer {
 						}
 					
 					else {
+							String currentString = stringBuilder.toString();
+							if(validTokens.contains(currentString)){
+								try {
+									fileWriter.write(currentString);
+									clearStringBuilder(stringBuilder);
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
 							stringBuilder.append(character);
 						}
 					}
-					
+										
 					);
+//			}
 			}
 		fileWriter.close();
 
