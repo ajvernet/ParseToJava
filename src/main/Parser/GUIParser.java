@@ -2,6 +2,8 @@ package main.Parser;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
@@ -17,6 +19,7 @@ import main.Tokens.Statement;
 import main.Tokens.Widget;
 
 public class GUIParser {
+	private File tokenizedFile;
 	private Output output;
 	private Scanner scanner;
 	private String currentToken;
@@ -25,8 +28,9 @@ public class GUIParser {
 		this.output = new Output();
 	}
 	
-	public GUIParser(Scanner scanner) {
-		this.scanner = scanner;
+	public GUIParser(File tokenizedFile) throws FileNotFoundException {
+		this.tokenizedFile = tokenizedFile;
+		this.scanner = new Scanner(tokenizedFile);
 		this.output = new Output();
 	}
 	
@@ -48,22 +52,29 @@ public class GUIParser {
 	
 	// create the window
 	private void createWindow() {
-		StringBuilder title = new StringBuilder();
-		while(scanner.hasNext()) {
+
 			getNextToken();
 			
-			if(currentToken.equals("(")) {
-				setSize();
-				break;
-			}
-			
-			else {
-				title.append(currentToken + " ");
-				this.output.setTitle(title.toString());
+			if(currentToken.equals(Statement.QUOTE)) {
+				
+				getNextToken();
+				if(Patterns.isAlphaNumeric(currentToken)) {
+				this.output.setTitle(currentToken);
+
+					getNextToken();
+					if(currentToken.equals(Statement.QUOTE)) {
+						
+						getNextToken();
+						if(currentToken.equals("(")) {
+							setSize();
+						}
+					}
 				}
 			}
+			
+	}
 		
-		}
+		
 	
 	// set size after parsing ( NUMBER , NUMBER , )
 	private void setSize() {
@@ -168,8 +179,10 @@ public class GUIParser {
 	}
 	
 	private void addButton() {
-		output.add(new JButton(currentToken));
-		
+		if(isString(currentToken)) {
+		String buttonText = extractString(currentToken);
+		output.add(new JButton(buttonText));
+	
 		getNextToken();
 		if(currentToken.equals(";")) {
 
@@ -178,6 +191,7 @@ public class GUIParser {
 					addWidget();
 				}
 			}
+		}
 
 	}
 	
@@ -200,7 +214,9 @@ public class GUIParser {
 	}
 	
 	private void addRadioButton(ButtonGroup group) {
-		JRadioButton button = new JRadioButton(currentToken);
+		if(isString(currentToken)) {
+			String buttonText = extractString(currentToken);
+		JRadioButton button = new JRadioButton(buttonText);
 		group.add(button);
 		
 		getNextToken();
@@ -212,6 +228,7 @@ public class GUIParser {
 				getNextToken();
 				addRadioButton(group);
 			}
+			}
 		}
 	}
 		
@@ -220,7 +237,13 @@ public class GUIParser {
 			token.equals(Widget.LABEL) || token.equals(Widget.PANEL);
 	}
 	
+	private boolean isString(String token) {
+		return token.startsWith("\"") & token.endsWith("\"");
+	}
 	
+	private String extractString(String token) {
+		return token.substring(1, token.length() - 1);
+	}
 	
 	private void getNextToken() {
 		if(scanner.hasNext()) {

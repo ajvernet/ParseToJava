@@ -1,1 +1,1 @@
-Window New Window ( 600 , 600 ) Layout Grid ( 5 , 5 ) : Button button ; Button 2nd ; Group Radio 1stRadio ; Radio 2ndRadio ;
+Window "New" ( 600 , 600 ) Layout Grid ( 5 , 5 ) : Button "button" ; Button "2nd" ; Group Radio "1stRadio" ; Radio "2ndRadio" End
