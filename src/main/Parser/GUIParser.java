@@ -7,7 +7,8 @@ import main.Tokens.Gui;
 
 public class GUIParser {
 	private Output output;
-	Scanner scanner;
+	private Scanner scanner;
+	private String currentToken;
 	
 	public GUIParser() {
 		this.output = new Output();
@@ -20,50 +21,64 @@ public class GUIParser {
 	
 	public void createGUI() {
 		
-		String currentToken;
-		boolean buildingGui = true;
-		
 		while(scanner.hasNext()) {
 		
 			currentToken = scanner.next();
-				if(currentToken.equals(Gui.WINDOW))
-					if(scanner.hasNext()) {
-						StringBuilder title = new StringBuilder();
-						
-						boolean buildingTitle = true;
-						while(buildingTitle) {
-							
-							if(scanner.hasNext()) {
-							currentToken = scanner.next();
-							
-								switch(currentToken) {
-								case "(":
-									buildingTitle = false;
-									break;
-									
-								default:
-									title.append(currentToken + " ");
-									this.output.setTitle(title.toString());
-								}			
-							}
-							
-							if(!scanner.hasNext()) {
-								buildingTitle=false;
-								printNoTokenError();
-							}
-
-						}
-						
-					}
+			if(currentToken.equals(Gui.WINDOW)){
+					createWindow();
+			}
+		}
+		
+		this.output.setVisible(true);
 				
-						
-					this.output.setVisible(true);
+	}
+	
+	private void checkForCorrectToken() {
+
+			System.out.println("Insufficient Tokens for Processing");
+			System.exit(0);
+	}
+	
+	// create the window
+	private void createWindow() {
+		StringBuilder title = new StringBuilder();
+		while(scanner.hasNext()) {
+			currentToken = scanner.next();
+			
+			if(currentToken.equals("(")) {
+				setSize();
+				break;
+			}
+			
+			else {
+				title.append(currentToken + " ");
+				this.output.setTitle(title.toString());
 				}
+			}
+		
 		}
 	
-	private void printNoTokenError() {
-			System.out.println("Insufficient Tokens for Processing");
+	// set size after parsing ( NUMBER , NUMBER , )
+	private void setSize() {
+
+			int width, height;
+			
+			if(scanner.hasNextInt()) {
+				currentToken = scanner.next();
+				width = Integer.parseInt(currentToken);
+				
+				currentToken = scanner.next();
+				if(currentToken.equals(",")) {
+					if(scanner.hasNextInt()) {
+						currentToken = scanner.next();
+						height = Integer.parseInt(currentToken);
+						
+						output.setSize(width, height);
+					}
+				}
+			}
 	}
+	
 	
 }
 	

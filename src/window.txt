@@ -1,1 +1,1 @@
-Window New Window
+Window New Window ( 600 , 600
