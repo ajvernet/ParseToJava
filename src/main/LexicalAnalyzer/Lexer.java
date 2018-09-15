@@ -29,7 +29,7 @@ public class Lexer {
 					Gui.WINDOW, Layout.LAYOUT, LayoutType.FLOW, LayoutType.GRID, RadioButton.RADIO, 
 					Statement.COMMA, Statement.END, Statement.LEFT_PARENS, Statement.RIGHT_PARENS,
 					Statement.SEMICOLON, Widget.BUTTON, Widget.GROUP, Widget.LABEL, Widget.PANEL,
-					Statement.QUOTE, Statement.COLON
+					Widget.TEXTFIELD, Statement.QUOTE, Statement.COLON, Statement.PERIOD
 				)) ;
 	
 	public Lexer(File file) throws IOException {
@@ -83,6 +83,9 @@ public class Lexer {
 						}
 					
 					else {
+
+							stringBuilder.append(character);
+							
 							String currentString = stringBuilder.toString();
 							if(validTokens.contains(currentString)){
 								try {
@@ -93,7 +96,6 @@ public class Lexer {
 									e.printStackTrace();
 								}
 							}
-							stringBuilder.append(character);
 						}
 					}
 										
