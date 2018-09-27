@@ -8,4 +8,5 @@ public class Statement {
 	public final static String COLON = ":";
 	public final static String COMMA = ",";
 	public final static String QUOTE = "\"";
+	public final static String PERIOD = ".";
 }

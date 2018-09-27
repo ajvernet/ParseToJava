@@ -1,20 +1,24 @@
 package main.Parser;
 
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 import Output.Output;
 import main.Tokens.Gui;
 import main.Tokens.Layout;
 import main.Tokens.LayoutType;
-import main.Tokens.RadioButton;
 import main.Tokens.Statement;
 import main.Tokens.Widget;
 
@@ -23,24 +27,38 @@ public class GUIParser {
 	private Output output;
 	private Scanner scanner;
 	private String currentToken;
+	private Container currentContainer;
+	private Container previousContainer;
+	private JPanel panel;
 	
 	public GUIParser() {
 		this.output = new Output();
+		this.currentContainer = this.output;
 	}
 	
 	public GUIParser(File tokenizedFile) throws FileNotFoundException {
 		this.tokenizedFile = tokenizedFile;
 		this.scanner = new Scanner(tokenizedFile);
 		this.output = new Output();
+		this.currentContainer = this.output;
+		panel = new JPanel();
 	}
 	
-	public void createGUI() {
+	public void createGUI() throws Exception {
 		
 		while(scanner.hasNext()) {
 		
 			getNextToken();
 			if(currentToken.equals(Gui.WINDOW)){
 					createWindow();
+					
+					if(currentToken.equals(Statement.END)) {
+						
+						getNextToken();
+						if(currentToken.equals(Statement.PERIOD)) {
+						System.out.println("Program executed successfully");
+						} else invalidToken();
+					}
 			}
 		}
 		
@@ -51,7 +69,7 @@ public class GUIParser {
 
 	
 	// create the window
-	private void createWindow() {
+	private void createWindow() throws Exception {
 
 			getNextToken();
 			
@@ -65,19 +83,37 @@ public class GUIParser {
 					if(currentToken.equals(Statement.QUOTE)) {
 						
 						getNextToken();
-						if(currentToken.equals("(")) {
+						if(currentToken.equals(Statement.LEFT_PARENS)) {
+							
+							//parse size
 							setSize();
-						}
-					}
-				}
-			}
+						}  else invalidToken();
+						
+						getNextToken();
+						if(currentToken.equals(Layout.LAYOUT)) {
+							
+							//parse layout
+							output.setLayout(parseLayout());
+							
+						} else invalidToken();
+
+						
+						
+						// parse widgets
+						getNextToken();
+						if(isWidget(currentToken)) {
+							addWidget();
+						} else invalidToken();
+					} else invalidToken();
+				} else invalidToken();
+			} else invalidToken();
 			
 	}
 		
 		
 	
 	// set size after parsing ( NUMBER , NUMBER , )
-	private void setSize() {
+	private void setSize() throws Exception {
 
 			int width, height;
 			
@@ -86,84 +122,105 @@ public class GUIParser {
 				width = Integer.parseInt(currentToken);
 				
 				getNextToken();
-				if(currentToken.equals(",")) {
+				if(currentToken.equals(Statement.COMMA)) {
 					if(scanner.hasNextInt()) {
 						getNextToken();
 						height = Integer.parseInt(currentToken);
 	
 						getNextToken();
-						if(currentToken.equals(")")){
+						if(currentToken.equals(Statement.RIGHT_PARENS)){
 							
 							output.setSize(width, height);
 							
-							getNextToken();
-							
-							if(currentToken.equals(Layout.LAYOUT)) {
-								
-								setLayout();
-								
-							}
-						}
+						} else invalidToken();
 					}
-				}
-			}
+				} else invalidToken();
+			} else invalidToken();
 	}
 	
-	private void setLayout() {
+	private LayoutManager parseLayout() throws Exception {
+		
+		LayoutManager layout;
 		
 		getNextToken();
 		
 		if(currentToken.equals(LayoutType.FLOW)) {
+			
+			layout = new FlowLayout();
 			output.setLayout(new FlowLayout());
 
 			getNextToken();
-			if(currentToken.equals(":")) {
-				getNextToken();
-				if(isWidget(currentToken)) {
-					addWidget();
-						}
-					}
+			if(currentToken.equals(Statement.COLON)) {
+				
+				return layout;
+
+			} else invalidToken();
 		}
 
 		if(currentToken.equals(LayoutType.GRID)) {
 			
-			int rows, cols;
+			int rows = 0, cols = 0, hgap = 0, vgap = 0;
 			
 			getNextToken();
-			if(currentToken.equals("(")) {
+			if(currentToken.equals(Statement.LEFT_PARENS)) {
 				if(scanner.hasNextInt()) {
 					getNextToken();
 					rows = Integer.parseInt(currentToken);
 					
 					getNextToken();
-					if(currentToken.equals(",")) {
+					if(currentToken.equals(Statement.COMMA)) {
 
 						if(scanner.hasNextInt()) {
 							getNextToken();
 							cols = Integer.parseInt(currentToken);
 							
 							getNextToken();
-							if(currentToken.equals(")")) {
-								output.setLayout(new GridLayout(rows, cols));
+							
+							if(currentToken.equals(Statement.COMMA)) {
 								
-								getNextToken();
-								if(currentToken.equals(":")) {
+		
+								if(scanner.hasNextInt()) {
 									getNextToken();
-									if(isWidget(currentToken)) {
-										addWidget();
+									hgap = Integer.parseInt(currentToken);
+									
+									getNextToken();
+									
+									if(currentToken.equals(Statement.COMMA)) {
+
+										if(scanner.hasNextInt()) {
+											getNextToken();
+											vgap = Integer.parseInt(currentToken);
+											
+											getNextToken();
+											
 											}
 										}
 									}
 								}
+							
+							if(currentToken.equals(Statement.RIGHT_PARENS)) {
+								
+								
+								layout = new GridLayout(rows, cols, hgap, vgap);
+								
+								getNextToken();
+								if(currentToken.equals(Statement.COLON)) {
+									
+									return layout;
+									
+										} else invalidToken();
+									} else invalidToken();
+								} else invalidToken();
 
-							}
-						}
-					}
+							} else invalidToken();
+						} else invalidToken();
+					} else invalidToken();
 				}
+		return null;
 			}
 	
 	
-	private void addWidget() {
+	private void addWidget() throws Exception {
 		switch(currentToken) {
 			
 		case Widget.BUTTON: 
@@ -175,16 +232,59 @@ public class GUIParser {
 		case Widget.GROUP:
 			getNextToken();
 			addRadioButtonGroup();
+
+			break;
+			
+		case Widget.LABEL:
+			getNextToken();
+			addLabel();
+			
+			break;
+			
+		case Widget.PANEL:
+			getNextToken();
+			addPanel();
+			
+			break;
+			
+		case Widget.TEXTFIELD:
+			getNextToken();
+			addTextField();
+			
+			break;
+			
+		case Widget.RADIO:
+			addRadioButtonGroup();
+			
+			break;
+			
+		default: break;
+			
 		}
-		
 	}
 	
-	private void addButton() {
+	private void addTextField() throws Exception {
+		
+		if(Patterns.isNumeric(currentToken)) {
+			currentContainer.add(new JTextField(Integer.parseInt(currentToken)));
+			
+			getNextToken();
+			if(currentToken.equals(Statement.SEMICOLON)) {
+				
+				getNextToken();
+				if(isWidget(currentToken)) {
+					addWidget();
+				}
+			} else invalidToken();
+		} else invalidToken();	
+	}
+	
+	private void addButton() throws Exception {
 		if(currentToken.equals(Statement.QUOTE)) {
 			
 			getNextToken();
 			if(Patterns.isAlphaNumeric(currentToken)) {
-			output.add(new JButton(currentToken));
+				currentContainer.add(new JButton(currentToken));
 				
 				getNextToken();
 				if(currentToken.equals(Statement.QUOTE)) {
@@ -196,30 +296,33 @@ public class GUIParser {
 							if(isWidget(currentToken)) {
 								addWidget();
 							}
-						}
-					}
-			}
-		}
+						} else invalidToken();
+					} else invalidToken();
+			} else invalidToken();
+		} else invalidToken();
 	}
 	
-	private void addRadioButtonGroup() {
+	private void addRadioButtonGroup() throws Exception {
 		ButtonGroup group = new ButtonGroup();
-		if(currentToken.equals(RadioButton.RADIO)) {
+		if(currentToken.equals(Widget.RADIO)) {
 			getNextToken();
 			addRadioButton(group);
 			
-			getNextToken();
 			if(currentToken.equals(Statement.END)) {
 				
 				getNextToken();
 				if(currentToken.equals(Statement.SEMICOLON)) {
-						//add logic here
-				}
-			}
-		}
+						
+					getNextToken();
+					if(isWidget(currentToken)) {
+						addWidget();
+					}
+				} else invalidToken();
+			} else invalidToken();
+		} else invalidToken();
 	}
 	
-	private void addRadioButton(ButtonGroup group) {
+	private void addRadioButton(ButtonGroup group) throws Exception {
 		if(currentToken.equals(Statement.QUOTE)) {
 			
 			getNextToken();
@@ -233,23 +336,91 @@ public class GUIParser {
 					
 				getNextToken();
 				if(currentToken.equals(Statement.SEMICOLON)){
-					output.add(button);
+					currentContainer.add(button);
 					
 					getNextToken();
-					if(currentToken.equals(RadioButton.RADIO)) {
+					if(currentToken.equals(Widget.RADIO)) {
 						
 						getNextToken();
 						addRadioButton(group);
 						}
-					}
-				}
+					} else invalidToken();
+				} else invalidToken();
+			} else invalidToken();
+		} else invalidToken();
+	}
+	
+	private void addLabel() throws Exception {
+		
+		if(currentToken.equals(Statement.QUOTE)) {
+			
+			getNextToken();
+			if(Patterns.isAlphaNumeric(currentToken)) {
+				
+				currentContainer.add(new JLabel(currentToken));
+				
+				getNextToken();
 			}
+			
+			else currentContainer.add(new JLabel());
+			
+				if(currentToken.equals(Statement.QUOTE)) {
+					
+					getNextToken();
+					if(currentToken.equals(Statement.SEMICOLON)) {
+						
+						getNextToken();
+						if(isWidget(currentToken)) {
+							
+							addWidget();
+
+						}
+					} else invalidToken();
+				} else invalidToken();
+			} else invalidToken();
+		}
+	
+	
+	private void addPanel() throws Exception {
+		panel = new JPanel();
+		
+		previousContainer = currentContainer;
+		currentContainer = panel;
+		
+		if(currentToken.equals(Layout.LAYOUT)) {
+			panel.setLayout(parseLayout());
+			getNextToken();
+			
+			if(isWidget(currentToken)) {
+				addWidget();
+			}  
+			
+			if(currentToken.equals(Statement.END)) {
+				
+				getNextToken();
+				
+				if(currentToken.equals(Statement.SEMICOLON)) {
+					
+					previousContainer.add(panel);
+					currentContainer = previousContainer;
+					getNextToken();
+					if(isWidget(currentToken)) {
+						
+						addWidget();
+					}
+					
+
+
+			} else invalidToken();
+		} else invalidToken();
 		}
 	}
 		
 	private boolean isWidget(String token) {
 		return token.equals(Widget.BUTTON) || token.equals(Widget.GROUP) || 
-			token.equals(Widget.LABEL) || token.equals(Widget.PANEL);
+			token.equals(Widget.LABEL) || token.equals(Widget.PANEL) || token.equals(Widget.TEXTFIELD)||
+			token.equals(Widget.RADIO);
+			
 	}
 	
 	
@@ -261,6 +432,10 @@ public class GUIParser {
 		else{
 			System.out.println("Error: Not enough tokens to complete program.");
 		}
+	}
+	
+	private void invalidToken() throws Exception {
+		throw new Exception("Invalid Token encountered");
 	}
 	
 	

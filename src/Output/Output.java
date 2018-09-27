@@ -12,8 +12,5 @@ import javax.swing.JFrame;
  */
 public class Output extends JFrame{
 
-	public Output() {
-	
-		setSize(400, 400);
-	}
+	public Output() {	}
 }

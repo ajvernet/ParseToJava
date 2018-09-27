@@ -10,8 +10,8 @@ import main.Parser.GUIParser;
 
 public class Runner {
 
-	public static void main(String[] args) throws IOException {
-		File guiSourceFile = new File("src/window.txt");
+	public static void main(String[] args) throws Exception {
+		File guiSourceFile = new File("window.txt");
 		Lexer lexer = new Lexer(guiSourceFile);
 		
 	

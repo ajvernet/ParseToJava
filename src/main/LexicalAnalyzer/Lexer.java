@@ -13,7 +13,6 @@ import main.Parser.Patterns;
 import main.Tokens.Gui;
 import main.Tokens.Layout;
 import main.Tokens.LayoutType;
-import main.Tokens.RadioButton;
 import main.Tokens.Statement;
 import main.Tokens.Widget;
 
@@ -26,10 +25,10 @@ public class Lexer {
 	
 	private static final List<String> validTokens = 
 			new ArrayList<String>(Arrays.asList(
-					Gui.WINDOW, Layout.LAYOUT, LayoutType.FLOW, LayoutType.GRID, RadioButton.RADIO, 
+					Gui.WINDOW, Layout.LAYOUT, LayoutType.FLOW, LayoutType.GRID, Widget.RADIO, 
 					Statement.COMMA, Statement.END, Statement.LEFT_PARENS, Statement.RIGHT_PARENS,
 					Statement.SEMICOLON, Widget.BUTTON, Widget.GROUP, Widget.LABEL, Widget.PANEL,
-					Statement.QUOTE, Statement.COLON
+					Widget.TEXTFIELD, Statement.QUOTE, Statement.COLON, Statement.PERIOD, Widget.RADIO
 				)) ;
 	
 	public Lexer(File file) throws IOException {
@@ -46,12 +45,7 @@ public class Lexer {
 			getNextToken();
 			
 			fileWriter.write(" ");
-//			
-//			if(validTokens.contains(currentToken)) {
-//				fileWriter.write(" " + currentToken + " ");
-//			}
-			
-//			else {
+
 				Pattern.compile("").splitAsStream(currentToken)
 			
 				.forEach(
@@ -83,22 +77,24 @@ public class Lexer {
 						}
 					
 					else {
+
+							stringBuilder.append(character);
+							
 							String currentString = stringBuilder.toString();
 							if(validTokens.contains(currentString)){
 								try {
 									fileWriter.write(currentString);
 									clearStringBuilder(stringBuilder);
 								} catch (IOException e) {
-									// TODO Auto-generated catch block
+					
 									e.printStackTrace();
 								}
 							}
-							stringBuilder.append(character);
 						}
 					}
 										
 					);
-//			}
+
 			}
 		fileWriter.close();
 
