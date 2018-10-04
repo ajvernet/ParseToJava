@@ -31,6 +31,8 @@ public class GUIParser {
 	private Container previousContainer;
 	private JPanel panel;
 	
+	private JTextField screen;
+	
 	public GUIParser() {
 		this.output = new Output();
 		this.currentContainer = this.output;
@@ -266,7 +268,8 @@ public class GUIParser {
 	private void addTextField() throws Exception {
 		
 		if(Patterns.isNumeric(currentToken)) {
-			currentContainer.add(new JTextField(Integer.parseInt(currentToken)));
+			screen = new JTextField(Integer.parseInt(currentToken));
+			currentContainer.add(screen);
 			
 			getNextToken();
 			if(currentToken.equals(Statement.SEMICOLON)) {
@@ -284,7 +287,10 @@ public class GUIParser {
 			
 			getNextToken();
 			if(Patterns.isAlphaNumeric(currentToken)) {
-				currentContainer.add(new JButton(currentToken));
+				JButton btn = new JButton(currentToken);
+				btn.addActionListener(click -> screen.setText(
+						screen.getText() + " " + btn.getText() + " "));
+				currentContainer.add(btn);
 				
 				getNextToken();
 				if(currentToken.equals(Statement.QUOTE)) {
