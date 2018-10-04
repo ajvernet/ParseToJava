@@ -52,7 +52,7 @@ public class Lexer {
 					character ->
 					{
 			
-					if(!Patterns.isAlphaNumeric(character)){
+					if(!Patterns.isAlphaNumeric(character) && !Patterns.isOperator(character)){
 										
 							if(isValidToken(character)) {
 								

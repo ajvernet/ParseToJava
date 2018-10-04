@@ -12,5 +12,9 @@ Button "2";
 Button "3";
 Label "";
 Button "0";
+Button "-";
+Button "+";
+Button "/";
+Button "*";
 End;
 End.

@@ -286,7 +286,7 @@ public class GUIParser {
 		if(currentToken.equals(Statement.QUOTE)) {
 			
 			getNextToken();
-			if(Patterns.isAlphaNumeric(currentToken)) {
+			if(Patterns.isAlphaNumeric(currentToken) || Patterns.isOperator(currentToken)) {
 				JButton btn = new JButton(currentToken);
 				btn.addActionListener(click -> screen.setText(
 						screen.getText() + " " + btn.getText() + " "));
