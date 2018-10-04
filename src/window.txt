@@ -4,10 +4,12 @@ Panel Layout Grid(4, 3, 5, 5):
 Button "7";
 Button "8";
 Button "9";
+Panel Layout Grid(2, 2):
 Button "4";
 Button "5";
 Button "6";
 Button "1";
+End;
 Button "2";
 Button "3";
 Label "";
