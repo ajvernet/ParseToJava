@@ -10,11 +10,13 @@ Button "6";
 Button "1";
 Button "2";
 Button "3";
-Label "";
+
 Button "0";
 Button "-";
 Button "+";
 Button "/";
 Button "*";
+Button "=";
+Button "C";
 End;
 End.

@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
@@ -19,6 +21,7 @@ import Output.Output;
 import main.Tokens.Gui;
 import main.Tokens.Layout;
 import main.Tokens.LayoutType;
+import main.Tokens.Operators;
 import main.Tokens.Statement;
 import main.Tokens.Widget;
 
@@ -33,6 +36,9 @@ public class GUIParser {
 	
 	private JTextField screen;
 	
+	private List<Integer> operands;
+	private List<String> operators;
+
 	public GUIParser() {
 		this.output = new Output();
 		this.currentContainer = this.output;
@@ -44,6 +50,9 @@ public class GUIParser {
 		this.output = new Output();
 		this.currentContainer = this.output;
 		panel = new JPanel();
+		
+		operands = new ArrayList<>();
+		operators = new ArrayList<>();
 	}
 	
 	public void createGUI() throws Exception {
@@ -282,14 +291,86 @@ public class GUIParser {
 		} else invalidToken();	
 	}
 	
+	private void clickButton(JButton btn) {
+		if (btn.getText().equals("C")){
+			operands.clear();
+			operators.clear();
+			screen.setText("");
+		}
+		
+		if (Patterns.isNumeric(btn.getText())) {
+			
+			if(Patterns.isOperator(screen.getText())) {
+				screen.setText("");
+			}
+			screen.setText(screen.getText() + btn.getText());
+		}
+		
+		if (Patterns.isOperator(btn.getText()) && Patterns.isNumeric(screen.getText())) {
+			
+			operands.add(Integer.parseInt(screen.getText()));
+				if(!btn.getText().equals(Operators.EQUALS)){
+					operators.add(btn.getText());
+					}
+				
+			screen.setText(btn.getText());
+			
+			if(btn.getText().equals(Operators.EQUALS)) {
+				
+				int operand1, operand2, solution = 0;
+				int numOperations = 0;
+								
+				for(String operator: operators) {
+					operand1 = operands.get(numOperations);
+					operand2 = operands.get(numOperations + 1);
+					
+					switch(operator) {
+					case Operators.ADD:
+						solution = operand1 + operand2;
+						break;
+					
+					case Operators.MINUS:
+						solution = operand1 - operand2;
+						break;
+					
+					case Operators.MULT:
+						solution = operand1 * operand2;
+						break;
+						
+					case Operators.DIV:
+						if(operand2 != 0) {
+							solution = operand1 / operand2;
+						}
+						
+						else {
+							screen.setText("Cannot divide by zero.");
+						}
+						break;
+					}
+
+					
+					operands.set((numOperations + 1), solution);
+					
+					numOperations++;
+				}
+				
+				screen.setText("" + solution);
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	
 	private void addButton() throws Exception {
 		if(currentToken.equals(Statement.QUOTE)) {
 			
 			getNextToken();
 			if(Patterns.isAlphaNumeric(currentToken) || Patterns.isOperator(currentToken)) {
 				JButton btn = new JButton(currentToken);
-				btn.addActionListener(click -> screen.setText(
-						screen.getText() + " " + btn.getText() + " "));
+				btn.addActionListener(click -> clickButton(btn));
 				currentContainer.add(btn);
 				
 				getNextToken();

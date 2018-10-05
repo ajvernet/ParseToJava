@@ -7,7 +7,7 @@ public class Patterns {
 	public static final Pattern numPattern = Pattern.compile("\\d+");
 	public static final Pattern alphaPattern = Pattern.compile("[a-zA-Z]+");
 	public static final Pattern alphaNumeric = Pattern.compile("\\w+");
-	public static final Pattern operatorPattern = Pattern.compile("[-+*/]");
+	public static final Pattern operatorPattern = Pattern.compile("[-+*/=]");
 	
 	public static boolean isNumeric(String token) {
 		Matcher numMatcher = numPattern.matcher(token);
