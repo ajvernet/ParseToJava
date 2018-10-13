@@ -12,7 +12,9 @@ import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -293,9 +295,7 @@ public class GUIParser {
 	
 	private void clickButton(JButton btn) {
 		if (btn.getText().equals("C")){
-			operands.clear();
-			operators.clear();
-			screen.setText("");
+			resetOperation();
 		}
 		
 		if (Patterns.isNumeric(btn.getText())) {
@@ -343,15 +343,19 @@ public class GUIParser {
 						}
 						
 						else {
-							screen.setText("Cannot divide by zero.");
+						    JOptionPane.showMessageDialog(new JFrame(), "Cannot divide by zero", "E",
+						            JOptionPane.ERROR_MESSAGE);
 						}
 						break;
 					}
 
 					
-					operands.set((numOperations + 1), solution);
+					if(operands.size() > 0) {
 					
-					numOperations++;
+						operands.set((numOperations + 1), solution);
+						
+						numOperations++;
+					}
 				}
 				
 				screen.setText("" + solution);
@@ -360,6 +364,12 @@ public class GUIParser {
 			
 		}
 		
+	}
+
+	private void resetOperation() {
+		operands.clear();
+		operators.clear();
+		screen.setText("");
 	}
 	
 	
